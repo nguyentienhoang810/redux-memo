@@ -16,18 +16,18 @@ struct AppState: StateType {
     var text: String?
 }
 
-struct InputAction: Action {
+struct InputAction: Action { //state will be changed by action
     var text: String
 }
 
 
-
+//get new state by action
 func AppReducer(action: Action, state: AppState?) -> AppState {
-    let state = state ?? AppState(text: "")
-    var newState = state
+    let state = state ?? AppState(text: "") //get current state
+    var newState = state //copy current state
     switch action {
     case _ as InputAction:
-        newState = AppState(text: (action as! InputAction).text)
+        newState = AppState(text: (action as! InputAction).text) //process copied state
     default:
         break
     }
@@ -35,6 +35,7 @@ func AppReducer(action: Action, state: AppState?) -> AppState {
 }
 
 class ViewController: UIViewController, StoreSubscriber {
+
     func newState(state: AppState) {
         print(state.text ?? "")
     }
