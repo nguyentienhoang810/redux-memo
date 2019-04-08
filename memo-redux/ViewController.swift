@@ -7,14 +7,78 @@
 //
 
 import UIKit
+import ReSwift
 
-class ViewController: UIViewController {
+let applicationStore = Store(reducer: AppReducer, state: AppState())
+
+struct AppState: StateType {
+    //something like model here
+    var text: String?
+}
+
+struct InputAction: Action {
+    var text: String
+}
+
+
+
+func AppReducer(action: Action, state: AppState?) -> AppState {
+    let state = state ?? AppState(text: "")
+    var newState = state
+    switch action {
+    case _ as InputAction:
+        newState = AppState(text: (action as! InputAction).text)
+    default:
+        break
+    }
+    return newState
+}
+
+class ViewController: UIViewController, StoreSubscriber {
+    func newState(state: AppState) {
+        print(state.text ?? "")
+    }
+
+    typealias StoreSubscriberStateType = AppState
+
+    private let button = UIButton()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        view.backgroundColor = .white
+        addSubview()
+        button.addTarget(self, action: #selector(tap(_:)), for: .touchUpInside)
     }
 
+    @objc func tap(_ sender: UIButton) {
+        var text = applicationStore.state.text ?? ""
+        text = text + "s"
+        applicationStore.dispatch(InputAction(text: text))
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applicationStore.subscribe(self)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        applicationStore.unsubscribe(self)
+    }
+
+    private func addSubview() {
+        view.addSubview(button)
+        button.backgroundColor = .orange
+        button.setTitle("Tap Here", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 50),
+            button.widthAnchor.constraint(equalToConstant: 200),
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+    }
 
 }
 
