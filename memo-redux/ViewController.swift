@@ -18,47 +18,23 @@ struct CountActionIncrease: Action {}
 struct CountActionDecrease: Action {}
 
 
-//struct AddTask: Action {
-//    var name: String?
-//}
-//
-//struct DeleteTask: Action {
-//    var index: Int?
-//}
-//
-//func appReducer(action: Action, state: AppState?) -> AppState {
-//    var state = state ?? AppState()
-//
-//    switch action {
-//    case let addTask as AddTask:
-//        let task = Task(name: addTask.name ?? "undefined name")
-//        state.tasks.insert(task, at: 0)
-//    case let deleteTask as DeleteTask:
-//        state.tasks.remove(at: deleteTask.index ?? 0)
-//    default:
-//        return state
-//    }
-//
-//    return state
-//}
-
-
 func handleAction(action: Action, state: AppState?) -> AppState {
     //copy current state
     var newState = state ?? AppState()
 
     switch action {
+    case _ as CountActionIncrease:
+        let newValue = newState.counter + 1
+        newState.counter = newValue
+
     case _ as CountActionDecrease:
-        return state?.counter
-    case _ as CountActionDecrease:
-        return state?.counter
+        let newValue = newState.counter - 1
+        newState.counter = newValue
+
     default:
         return newState
-
-//    case _ as CountActionIncrease: return AppState(counter: state.map { $0.counter + 1 } ?? 0)
-//    case _ as CountActionDecrease: return AppState(counter: state.map { $0.counter - 1 } ?? 0)
-//    default: return AppState(counter: 0)
     }
+    return newState
 }
 
 
