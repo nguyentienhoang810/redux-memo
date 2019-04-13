@@ -9,77 +9,80 @@
 import UIKit
 import ReSwift
 
-struct Task {
-    var name: String?
-}
 
 struct AppState: StateType {
-    var tasks = [Task]()
+    var counter: Int = 0
 }
 
-struct AddTask: Action {
-    var name: String?
-}
-
-struct DeleteTask: Action {
-    var index: Int?
-}
+struct CountActionIncrease: Action {}
+struct CountActionDecrease: Action {}
 
 
-//Reducer sẽ dựa vào Action để trả về một State mới từ State hiện tại.
-//Như đoạn code trên nếu là action AddTask thì sẽ insert một task mới với mô tả name được truyền vào,
-//còn nếu là action DeleteTask thì sẽ delete đi task với index được mô tả trong action.
-func appReducer(action: Action, state: AppState?) -> AppState {
-    var state = state ?? AppState()
+//struct AddTask: Action {
+//    var name: String?
+//}
+//
+//struct DeleteTask: Action {
+//    var index: Int?
+//}
+//
+//func appReducer(action: Action, state: AppState?) -> AppState {
+//    var state = state ?? AppState()
+//
+//    switch action {
+//    case let addTask as AddTask:
+//        let task = Task(name: addTask.name ?? "undefined name")
+//        state.tasks.insert(task, at: 0)
+//    case let deleteTask as DeleteTask:
+//        state.tasks.remove(at: deleteTask.index ?? 0)
+//    default:
+//        return state
+//    }
+//
+//    return state
+//}
+
+
+func handleAction(action: Action, state: AppState?) -> AppState {
+    //copy current state
+    var newState = state ?? AppState()
 
     switch action {
-    case let addTask as AddTask:
-        let task = Task(name: addTask.name ?? "undefined name")
-        state.tasks.insert(task, at: 0)
-    case let deleteTask as DeleteTask:
-        state.tasks.remove(at: deleteTask.index ?? 0)
+    case _ as CountActionDecrease:
+        return state?.counter
+    case _ as CountActionDecrease:
+        return state?.counter
     default:
-        return state
-    }
+        return newState
 
-    return state
+//    case _ as CountActionIncrease: return AppState(counter: state.map { $0.counter + 1 } ?? 0)
+//    case _ as CountActionDecrease: return AppState(counter: state.map { $0.counter - 1 } ?? 0)
+//    default: return AppState(counter: 0)
+    }
 }
 
-//Nhiệm vụ của store là lưu trữ state của ứng dụng
-//và phản hồi state mới tới các View subscribe đến nó.
-//Một ứng dụng chỉ có duy nhất một Store (nguyên lý 1 single source of truth)
-//chứa tất các state cần thiết cho ứng dụng.
-let store = Store<AppState>(reducer: appReducer, state: AppState())
 
+class ViewController: UIViewController {
 
-
-class ViewController: UIViewController, StoreSubscriber {
-    func newState(state: AppState) {
-        self.tasks = state.tasks
-    }
-
-    typealias StoreSubscriberStateType = AppState
-    var tasks = [Task]() {
-        didSet {
-            tableView.reloadData()
-        }
-    }
-
-    var taskNumber = 0
-
-    private lazy var tableView: UITableView = {
-        let tb = UITableView()
-        tb.delegate = self
-        tb.dataSource = self
-        tb.estimatedRowHeight = 200
-        return tb
-    }()
-
-    private lazy var addBtn: UIButton = {
+    private lazy var decreaseBtn: UIButton = {
         let btn = UIButton()
         btn.backgroundColor = .orange
-        btn.setTitle("Add task", for: .normal)
+        btn.setTitle("Decrease", for: .normal)
         return btn
+    }()
+
+    private lazy var increaseBtn: UIButton = {
+        let btn = UIButton()
+        btn.backgroundColor = .orange
+        btn.setTitle("Increase", for: .normal)
+        return btn
+    }()
+
+    private lazy var label: UILabel = {
+        let lbl = UILabel()
+        lbl.textAlignment = .center
+        lbl.text = "00000"
+        return lbl
     }()
 
     override func viewDidLoad() {
@@ -90,68 +93,43 @@ class ViewController: UIViewController, StoreSubscriber {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        store.subscribe(self)
+
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        store.unsubscribe(self)
+
     }
 
-    @objc func addTask() {
-        taskNumber += 1
-        let addTaskAction = AddTask(name: "new Task \(taskNumber)")
-        store.dispatch(addTaskAction)
-    }
 }
-
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let deleteAction = DeleteTask(index: indexPath.row)
-        store.dispatch(deleteAction)
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as UITableViewCell
-        cell.textLabel?.text = tasks[indexPath.row].name ?? "no name"
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-}
-
 
 extension ViewController {
     private func addSubview() {
-        view.addSubview(tableView)
-        view.addSubview(addBtn)
+        view.addSubview(decreaseBtn)
+        view.addSubview(increaseBtn)
+        view.addSubview(label)
 
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        addBtn.translatesAutoresizingMaskIntoConstraints = false
+        label.backgroundColor = UIColor.blue.withAlphaComponent(0.2)
 
-        tableView.layer.borderColor = UIColor.orange.cgColor
-        tableView.layer.borderWidth = 1
-
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        addBtn.addTarget(self, action: #selector(addTask), for: .touchUpInside)
+        decreaseBtn.translatesAutoresizingMaskIntoConstraints = false
+        increaseBtn.translatesAutoresizingMaskIntoConstraints = false
+        label.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
+            increaseBtn.heightAnchor.constraint(equalToConstant: 30),
+            increaseBtn.widthAnchor.constraint(equalToConstant: 200),
+            increaseBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
+            increaseBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            addBtn.heightAnchor.constraint(equalToConstant: 30),
-            addBtn.widthAnchor.constraint(equalToConstant: 200),
-            addBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10),
-            addBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            decreaseBtn.heightAnchor.constraint(equalToConstant: 30),
+            decreaseBtn.widthAnchor.constraint(equalToConstant: 200),
+            decreaseBtn.bottomAnchor.constraint(equalTo: increaseBtn.topAnchor, constant: -20),
+            decreaseBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            label.heightAnchor.constraint(equalToConstant: 50)
             ])
     }
 }
