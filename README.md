@@ -10,3 +10,6 @@ only tap to button to add more text
 2019/4/9
 - Add/Delete action and store.
 - Update tableView
+
+2019/4/13
+- counter app: increase, decrease number
