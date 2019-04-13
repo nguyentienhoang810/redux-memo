@@ -41,6 +41,17 @@ let store = Store<AppState>(reducer: appReducer, state: AppState())
 
 class ViewController: UIViewController {
 
+    @objc func handleCounter(_ sender: UIButton) {
+        switch sender {
+        case decreaseBtn:
+            store.dispatch(CountActionDecrease())
+        case increaseBtn:
+            store.dispatch(CountActionIncrease())
+        default:
+            print("undefined button")
+        }
+    }
+
     private lazy var decreaseBtn: UIButton = {
         let btn = UIButton()
         btn.backgroundColor = .orange
@@ -66,6 +77,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         addSubview()
+        increaseBtn.addTarget(self, action: #selector(handleCounter(_:)), for: .touchUpInside)
+        decreaseBtn.addTarget(self, action: #selector(handleCounter(_:)), for: .touchUpInside)
     }
 
     override func viewWillAppear(_ animated: Bool) {
