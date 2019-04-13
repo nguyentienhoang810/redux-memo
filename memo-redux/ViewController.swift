@@ -12,6 +12,7 @@ import ReSwift
 
 struct AppState: StateType {
     var counter: Int = 0
+    var content: String = ""
 }
 
 struct CountActionIncrease: Action {}
@@ -25,7 +26,9 @@ func appReducer(action: Action, state: AppState?) -> AppState {
     switch action {
     case _ as CountActionIncrease:
         let newValue = newState.counter + 1
+        let newString = newState.content + "new "
         newState.counter = newValue
+        newState.content = newString
 
     case _ as CountActionDecrease:
         let newValue = newState.counter - 1
