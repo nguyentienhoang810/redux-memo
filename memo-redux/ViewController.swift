@@ -18,7 +18,7 @@ struct CountActionIncrease: Action {}
 struct CountActionDecrease: Action {}
 
 
-func handleAction(action: Action, state: AppState?) -> AppState {
+func appReducer(action: Action, state: AppState?) -> AppState {
     //copy current state
     var newState = state ?? AppState()
 
@@ -37,6 +37,7 @@ func handleAction(action: Action, state: AppState?) -> AppState {
     return newState
 }
 
+let store = Store<AppState>(reducer: appReducer, state: AppState())
 
 class ViewController: UIViewController {
 
