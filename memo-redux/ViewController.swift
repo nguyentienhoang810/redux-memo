@@ -39,7 +39,11 @@ func appReducer(action: Action, state: AppState?) -> AppState {
 
 let store = Store<AppState>(reducer: appReducer, state: AppState())
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, StoreSubscriber {
+
+    func newState(state: AppState) {
+        print(state)
+    }
 
     @objc func handleCounter(_ sender: UIButton) {
         switch sender {
@@ -83,12 +87,12 @@ class ViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        store.subscribe(self)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        store.unsubscribe(self)
     }
 
 }
