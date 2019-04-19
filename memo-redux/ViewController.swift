@@ -14,7 +14,7 @@ struct AppState: StateType {
     var counter: Int = 0
     var content: String = ""
 }
-
+struct InitAppStateAction: Action {}
 struct CountActionIncrease: Action {}
 struct CountActionDecrease: Action {}
 
@@ -24,6 +24,10 @@ func appReducer(action: Action, state: AppState?) -> AppState {
     var newState = state ?? AppState()
 
     switch action {
+    case _ as InitAppStateAction:
+        newState.counter = 10
+        newState.content = "initialized"
+
     case _ as CountActionIncrease:
         let newValue = newState.counter + 1
         let newString = newState.content + "new "
